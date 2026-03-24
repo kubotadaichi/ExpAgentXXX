@@ -147,8 +147,8 @@ def train(
         "BUCKET_NAME": bucket_name,
         "COMPETITION_NAME": os.environ["COMPETITION_NAME"],
     }
-    if os.getenv("WANDB_API_KEY"):
-        env_vars["WANDB_API_KEY"] = os.environ["WANDB_API_KEY"]
+    if os.getenv("MLFLOW_TRACKING_URI"):
+        env_vars["MLFLOW_TRACKING_URI"] = os.environ["MLFLOW_TRACKING_URI"]
     if reqs:
         env_vars["REQUIREMENTS"] = " ".join(reqs)
 

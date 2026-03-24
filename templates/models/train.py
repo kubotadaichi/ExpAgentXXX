@@ -1,9 +1,12 @@
 import os
 from contextlib import nullcontext
+from typing import Any, cast
 
 import mlflow
 
 from settings import Config, DirectorySettings
+
+mlflow = cast(Any, mlflow)
 
 
 def _start_mlflow_run(settings: DirectorySettings, debug: bool):

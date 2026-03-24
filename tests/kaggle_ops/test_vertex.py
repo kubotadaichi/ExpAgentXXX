@@ -23,9 +23,13 @@ def test_train_passes_mlflow_tracking_uri(monkeypatch, tmp_path: Path) -> None:
 
     holder = {}
 
-    monkeypatch.setattr(vertex, "compile_train_script", lambda exp: str(tmp_path / "compiled.py"))
-    monkeypatch.setattr(vertex, "_upload_to_gcs", lambda *args: "gs://bucket/scripts/compiled.py")
-    monkeypatch.setattr(vertex.aiplatform, "init", lambda **kwargs: None)
+    def fake_compile_train_script(*, exp: str) -> str:
+        assert exp == "exp001"
+        return str(tmp_path / "compiled.py")
+
+    monkeypatch.setattr(vertex, "compile_train_script", fake_compile_train_script)
+    monkeypatch.setattr(vertex, "_upload_to_gcs", lambda *_args: "gs://bucket/scripts/compiled.py")
+    monkeypatch.setattr(vertex.aiplatform, "init", lambda **_kwargs: None)
 
     def fake_job(**kwargs):
         job = DummyJob(**kwargs)

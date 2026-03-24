@@ -2,12 +2,12 @@ import importlib.util
 import types
 from pathlib import Path
 
-
 HELPERS_PATH = Path(".claude/skills/mlflow-primary/scripts/mlflow_helpers.py")
 
 
 def load_helpers():
     spec = importlib.util.spec_from_file_location("mlflow_helpers", HELPERS_PATH)
+    assert spec is not None
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)

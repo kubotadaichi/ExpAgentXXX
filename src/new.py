@@ -46,7 +46,11 @@ def _create_backlog_task(name: str, source: str) -> None:
     if source != "template":
         cmd.extend(["-l", source])
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError as exc:
+        print(f"Warning: Failed to create backlog task: {exc}")
+        return
     if result.returncode == 0:
         print(f"Backlog task created: {result.stdout.strip()}")
     else:

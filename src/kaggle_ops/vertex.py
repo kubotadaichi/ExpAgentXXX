@@ -10,6 +10,7 @@ from google.cloud import aiplatform, storage
 from pydantic import BaseModel, model_validator
 
 from .compile import compile_train_script
+from .utils.utils import get_kaggle_auth_env
 
 dotenv.load_dotenv()
 logger = logging.getLogger(__name__)
@@ -187,10 +188,9 @@ def download_kaggle_competition_data(
     env_vars: dict[str, str] = {
         "BUCKET_NAME": bucket_name,
         "COMPETITION_NAME": os.environ["COMPETITION_NAME"],
-        "KAGGLE_USERNAME": os.environ["KAGGLE_USERNAME"],
-        "KAGGLE_KEY": os.environ["KAGGLE_KEY"],
         "REQUIREMENTS": "kaggle",
     }
+    env_vars.update(get_kaggle_auth_env())
 
     logger.info("Submitting download job on %s", machine_type)
     job.run(

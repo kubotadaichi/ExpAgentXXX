@@ -5,6 +5,7 @@ import shutil
 import sys
 import types
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -28,7 +29,7 @@ def models_dir(tmp_path: Path) -> Path:
     return d
 
 
-def _load_template_train_module(template_dir: Path, fake_mlflow: types.ModuleType) -> types.ModuleType:
+def _load_template_train_module(template_dir: Path, fake_mlflow: object) -> types.ModuleType:
     train_path = template_dir / "train.py"
     module_name = f"template_train_{id(train_path)}"
     original_sys_path = list(sys.path)
@@ -38,7 +39,7 @@ def _load_template_train_module(template_dir: Path, fake_mlflow: types.ModuleTyp
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.path.insert(0, str(template_dir))
-    sys.modules["mlflow"] = fake_mlflow
+    sys.modules["mlflow"] = cast(types.ModuleType, fake_mlflow)
     try:
         spec.loader.exec_module(module)
         return module
@@ -253,19 +254,12 @@ class TestExp:
         self, template_dir: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """MLFLOW_TRACKING_URI 未設定なら MLflow を使わず学習が完了する。"""
-        fake_mlflow = types.ModuleType("mlflow")
         tracker = _FakeMlflow()
-        fake_mlflow.set_tracking_uri = tracker.set_tracking_uri
-        fake_mlflow.set_experiment = tracker.set_experiment
-        fake_mlflow.start_run = tracker.start_run
-        fake_mlflow.log_params = tracker.log_params
-        fake_mlflow.set_tags = tracker.set_tags
-        fake_mlflow.log_metric = tracker.log_metric
         monkeypatch.chdir(tmp_path)
         monkeypatch.setenv("COMPETITION_NAME", "demo-comp")
         monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
 
-        module = _load_template_train_module(template_dir, fake_mlflow)
+        module = _load_template_train_module(template_dir, tracker)
 
         module.main(debug=True)
 
@@ -275,19 +269,12 @@ class TestExp:
         self, template_dir: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """MLFLOW_TRACKING_URI 設定時は MLflow の初期化と記録を行う。"""
-        fake_mlflow = types.ModuleType("mlflow")
         tracker = _FakeMlflow()
-        fake_mlflow.set_tracking_uri = tracker.set_tracking_uri
-        fake_mlflow.set_experiment = tracker.set_experiment
-        fake_mlflow.start_run = tracker.start_run
-        fake_mlflow.log_params = tracker.log_params
-        fake_mlflow.set_tags = tracker.set_tags
-        fake_mlflow.log_metric = tracker.log_metric
         monkeypatch.chdir(tmp_path)
         monkeypatch.setenv("COMPETITION_NAME", "demo-comp")
         monkeypatch.setenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 
-        module = _load_template_train_module(template_dir, fake_mlflow)
+        module = _load_template_train_module(template_dir, tracker)
 
         module.main(debug=False)
 

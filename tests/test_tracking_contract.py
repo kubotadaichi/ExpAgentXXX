@@ -1,3 +1,4 @@
+import json
 import tomllib
 from pathlib import Path
 
@@ -9,7 +10,6 @@ def test_pyproject_uses_mlflow_not_wandb() -> None:
     deps = data["project"]["dependencies"]
     assert any(dep.startswith("mlflow") for dep in deps)
     assert not any(dep.startswith("wandb") for dep in deps)
-
 
 def test_env_example_does_not_force_mlflow_uri() -> None:
     text = (ROOT / ".env.example").read_text()
@@ -31,3 +31,8 @@ def test_readme_keeps_mlflow_server_explanation_minimal() -> None:
 def test_taskfile_does_not_manage_mlflow_server() -> None:
     text = (ROOT / "Taskfile.yml").read_text()
     assert "mlflow-server:" not in text
+
+
+def test_skills_lock_does_not_reference_wandb_primary() -> None:
+    data = json.loads((ROOT / "skills-lock.json").read_text())
+    assert "wandb-primary" not in data["skills"]

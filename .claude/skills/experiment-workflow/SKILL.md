@@ -133,14 +133,14 @@ if __name__ == "__main__":
 
 Key conventions:
 
-- **Experiment tracking uses [W&B (Weights & Biases)](https://wandb.ai/)**. Initialize and configure wandb in `train.py` only — do not use wandb in `settings.py` or `inference.py`. Disable wandb in debug mode (`wandb.init(mode="disabled")` or equivalent).
+- **Experiment tracking uses MLflow**. Initialize and configure MLflow in `train.py` only. Do not put tracking setup in `settings.py` or `inference.py`.
 - All training logic goes inside `main()`, invoked via `tyro.cli(main)`
 - `if __name__ == "__main__"` guard is required (enables safe import by inference.py)
 - `predict()` is defined in train.py; inference.py imports it via `from train import predict`
 - `debug: bool = False` is the standard flag; add other CLI args as needed
 - After training, run validation inference using `predict()` (same pipeline as submission) and compute evaluation metrics
 - Save OOF predictions CSV to `artifact_dir`
-- **Save metrics as `metrics.json` to `artifact_dir`**: Include CV score, per-fold scores, and config. This enables programmatic comparison across experiments without relying on wandb.
+- **Save metrics as `metrics.json` to `artifact_dir`**: Include CV score, per-fold scores, and config. This remains useful alongside MLflow tracking.
 - **Save OOF analysis plots to `artifact_dir`**: Visualize OOF predictions vs ground truth. Choose plots appropriate for the task (e.g., scatter + residuals for regression, confusion matrix + calibration for classification).
 - **All hyperparameters and tunable constants must be defined in `Config`** (in `settings.py`). Do not use module-level constants for tunable values. This centralizes experiment configuration and makes it easy to compare settings across experiments.
 
@@ -215,7 +215,7 @@ Debug mode applies these overrides in `train.py`:
 - **Config overrides**: epochs=1, reduced max_length, etc.
 - **Data limiting**: training data truncated to a small subset
 - **artifact_dir isolation**: saves to `artifacts/debug/` to avoid mixing with production artifacts
-- **wandb disabled**: no logging to wandb during debug runs
+- **MLflow tagging**: debug runs may log to MLflow, but tag them with `debug=true`
 
 `EXTRA_ARGS` is a generic parameter that passes arbitrary arguments to `train.py`. On Vertex AI, arguments are forwarded via `vertex.py`'s `extra_args` through the container entrypoint.
 
@@ -243,4 +243,4 @@ backlog task edit TASK-N -s "Done"
 - **Tabular Feature Engineering**: For the `engineer_features` pattern (stateless/stateful separation, `f_` prefix, encoder block, polars), read `.claude/skills/experiment-workflow/references/tabular-feature-engineering.md`.
 - **Validation Strategy**: For choosing the right cross-validation strategy (TimeSeriesSplit, GroupKFold, StratifiedKFold, MultilabelStratifiedKFold, etc.), read `.claude/skills/experiment-workflow/references/validation-strategy.md`.
 - **Backlog**: For backlog CLI usage (task management, documents, decisions), refer to the `backlog` skill.
-- **W&B**: For experiment tracking, metrics logging, and run comparison, refer to the `wandb-primary` skill.
+- **MLflow**: For experiment tracking, metrics logging, and run comparison, refer to the `mlflow-primary` skill.

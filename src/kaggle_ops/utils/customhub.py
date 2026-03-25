@@ -6,14 +6,14 @@ import subprocess
 import tempfile
 from fnmatch import fnmatch
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from kaggle import KaggleApi
+from .utils import get_kaggle_username
 
-from .utils import get_kaggle_authentication
+if TYPE_CHECKING:
+    from kaggle import KaggleApi
 
 logger = logging.getLogger(__name__)
-
-KAGGLE_USERNAME, _ = get_kaggle_authentication()
 
 IGNORE_PATTERNS = [
     ".*",
@@ -32,17 +32,19 @@ IGNORE_PATTERNS = [
 ]
 
 
-def _check_dataset_exists(client: KaggleApi, handle: str) -> bool:
-    datasets = client.dataset_list(user=KAGGLE_USERNAME) or []
+def _check_dataset_exists(client: "KaggleApi", handle: str) -> bool:
+    username = get_kaggle_username(required=True)
+    datasets = client.dataset_list(user=username) or []
     return any(str(ds.ref) == handle for ds in datasets)  # type: ignore[union-attr]
 
 
-def _check_model_exists(client: KaggleApi, handle: str) -> bool:
-    models = client.model_list(owner=KAGGLE_USERNAME) or []
+def _check_model_exists(client: "KaggleApi", handle: str) -> bool:
+    username = get_kaggle_username(required=True)
+    models = client.model_list(owner=username) or []
     return any(str(m) == handle for m in models)
 
 
-def _check_model_instance_exists(client: KaggleApi, handle: str) -> bool:
+def _check_model_instance_exists(client: "KaggleApi", handle: str) -> bool:
     if len(handle.split("/")) == 5:
         handle = "/".join(handle.split("/")[:-1])
     try:
@@ -68,7 +70,7 @@ def _copytree(src: str, dst: str, ignore_patterns: list | None = None) -> None:
 
 
 def model_upload(
-    client: KaggleApi,
+    client: "KaggleApi",
     handle: str,
     local_model_dir: str,
     ignore_patterns: list[str] = IGNORE_PATTERNS,
@@ -118,7 +120,7 @@ def model_upload(
 
 
 def dataset_upload(
-    client: KaggleApi,
+    client: "KaggleApi",
     handle: str,
     local_dataset_dir: str,
     ignore_patterns: list[str] = IGNORE_PATTERNS,
@@ -153,7 +155,7 @@ def dataset_upload(
 
 
 def competition_download(
-    client: KaggleApi, handle: str, destination: str | Path = "./", force_download: bool = False
+    client: "KaggleApi", handle: str, destination: str | Path = "./", force_download: bool = False
 ) -> None:
     out_dir = Path(destination) / handle
     zipfile_path = out_dir / f"{handle}.zip"
@@ -167,7 +169,7 @@ def competition_download(
 
 
 def datasets_download(
-    client: KaggleApi, handles: list[str], destination: str | Path = "./", force_download: bool = False
+    client: "KaggleApi", handles: list[str], destination: str | Path = "./", force_download: bool = False
 ) -> None:
     for dataset in handles:
         name = dataset.split("/")[1]

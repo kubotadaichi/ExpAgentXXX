@@ -60,9 +60,10 @@ cp .env.example .env
 ```
 
 ```env
-# Kaggle API credentials
+# Kaggle authentication
 KAGGLE_USERNAME=
-KAGGLE_KEY=
+KAGGLE_API_TOKEN=
+# KAGGLE_KEY=        # Optional legacy API key when not using KAGGLE_API_TOKEN
 
 # Google Cloud settings
 PROJECT_ID=
@@ -81,3 +82,5 @@ If you want tracking, start an MLflow server outside this repository first and t
 ```bash
 npx skills add microsoft/playwright-cli --agent claude-code --skill playwright-cli --yes
 ```
+
+MLflow support is bundled in `.claude/skills/mlflow-primary/`.

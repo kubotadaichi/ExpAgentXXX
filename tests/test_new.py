@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+import src.new as new_module
 from src.new import _post_process, _resolve_code_sub, exp
 
 
@@ -148,6 +149,25 @@ class TestPostProcess:
         _post_process(target, "exp001", "template")
 
 
+class TestCreateBacklogTask:
+    """_create_backlog_task のテスト。"""
+
+    def test_missing_backlog_cli_does_not_raise(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """backlog CLI がなくても警告だけで継続する。"""
+
+        def raise_file_not_found(*_args, **_kwargs):
+            raise FileNotFoundError("backlog")
+
+        monkeypatch.setattr(new_module.subprocess, "run", raise_file_not_found)
+
+        new_module._create_backlog_task("exp001", "template")
+
+        captured = capsys.readouterr()
+        assert "Warning: Failed to create backlog task" in captured.out
+
+
 class TestExp:
     """exp コマンドのテスト。"""
 
@@ -280,3 +300,19 @@ class TestExp:
             "set_tags",
             "log_metric",
         ]
+    def test_template_train_contains_mlflow_tracking(
+        self, template_dir: Path, models_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """テンプレートから作成される train.py が MLflow 前提になっている。"""
+        monkeypatch.chdir(template_dir.parent.parent)
+        monkeypatch.setattr(new_module, "_create_backlog_task", lambda *_args, **_kwargs: None)
+
+        exp("exp001", source="template", kaggle_code_sub="false")
+
+        train = (models_dir / "exp001" / "train.py").read_text()
+        assert "import mlflow" in train
+        assert "mlflow.set_tracking_uri" in train
+        assert "mlflow.set_experiment" in train
+        assert "mlflow.start_run" in train
+        assert "mlflow.log_params" in train
+        assert "wandb" not in train

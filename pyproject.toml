@@ -3,7 +3,7 @@ name = "ExpAgent"
 version = "0.1.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "kaggle>=1.8.4",
     "google-cloud-aiplatform>=1.74.0",

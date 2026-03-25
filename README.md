@@ -60,22 +60,27 @@ cp .env.example .env
 ```
 
 ```env
-# Kaggle API credentials
+# Kaggle authentication
 KAGGLE_USERNAME=
-KAGGLE_KEY=
+KAGGLE_API_TOKEN=
+# KAGGLE_KEY=        # Optional legacy API key when not using KAGGLE_API_TOKEN
 
 # Google Cloud settings
 PROJECT_ID=
 BUCKET_NAME=        # defaults to competition_name if empty
 REGION=
 
-# Other API keys
-WANDB_API_KEY=
+# Experiment tracking
+MLFLOW_TRACKING_URI=http://localhost:5000
 ```
+
+If you set `MLFLOW_TRACKING_URI`, make sure an MLflow tracking server is running at that address before executing training commands.
+Leave `MLFLOW_TRACKING_URI` empty to disable MLflow logging for local experimentation.
 
 ### 2. Install third-party Claude Code skills
 
 ```bash
-npx skills add wandb/skills --agent claude-code --skill '*' --yes
 npx skills add microsoft/playwright-cli --agent claude-code --skill playwright-cli --yes
 ```
+
+MLflow support is bundled in `.claude/skills/mlflow-primary/`.

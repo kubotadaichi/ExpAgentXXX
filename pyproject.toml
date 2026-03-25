@@ -3,7 +3,7 @@ name = "ExpAgent"
 version = "0.1.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "kaggle>=1.8.4",
     "google-cloud-aiplatform>=1.74.0",
@@ -15,9 +15,9 @@ dependencies = [
     "tyro>=1.0.6",
     "lightgbm>=4.6.0",
     "scikit-learn>=1.8.0",
-    "pandas>=3.0.0",
+    "pandas>=2.2.0,<3.0.0",
     "stickytape>=0.2.1",
-    "wandb>=0.25.1",
+    "mlflow>=2.0.0",
 ]
 
 [dependency-groups]

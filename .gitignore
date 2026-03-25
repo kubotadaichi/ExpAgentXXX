@@ -161,3 +161,4 @@ models/*/artifacts/*
 *.tfvars.json
 
 wandb/*
+.worktrees/

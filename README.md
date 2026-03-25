@@ -69,13 +69,15 @@ PROJECT_ID=
 BUCKET_NAME=        # defaults to competition_name if empty
 REGION=
 
-# Other API keys
-WANDB_API_KEY=
+# Experiment tracking
+MLFLOW_TRACKING_URI=
 ```
+
+MLflow logging is optional. Leave `MLFLOW_TRACKING_URI` empty to disable MLflow logging for local experimentation.
+If you want tracking, start an MLflow server outside this repository first and then set `MLFLOW_TRACKING_URI` explicitly before running training.
 
 ### 2. Install third-party Claude Code skills
 
 ```bash
-npx skills add wandb/skills --agent claude-code --skill '*' --yes
 npx skills add microsoft/playwright-cli --agent claude-code --skill playwright-cli --yes
 ```

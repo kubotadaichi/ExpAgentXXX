@@ -71,11 +71,11 @@ BUCKET_NAME=        # defaults to competition_name if empty
 REGION=
 
 # Experiment tracking
-MLFLOW_TRACKING_URI=http://localhost:5000
+MLFLOW_TRACKING_URI=
 ```
 
-If you set `MLFLOW_TRACKING_URI`, make sure an MLflow tracking server is running at that address before executing training commands.
-Leave `MLFLOW_TRACKING_URI` empty to disable MLflow logging for local experimentation.
+MLflow logging is optional. Leave `MLFLOW_TRACKING_URI` empty to disable MLflow logging for local experimentation.
+If you want tracking, start an MLflow server outside this repository first and then set `MLFLOW_TRACKING_URI` explicitly before running training.
 
 ### 2. Install third-party Claude Code skills
 

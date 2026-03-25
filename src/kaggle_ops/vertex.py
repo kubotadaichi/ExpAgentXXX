@@ -3,6 +3,7 @@ import os
 import tomllib
 from pathlib import Path
 from typing import Annotated, Literal, TypedDict
+from urllib.parse import urlsplit
 
 import dotenv
 import tyro
@@ -112,6 +113,11 @@ def _get_container_uri(region: str, project_id: str, container_uri: str) -> str:
     return container_uri or f"{region}-docker.pkg.dev/{project_id}/training-images/training:latest"
 
 
+def _has_embedded_credentials(uri: str) -> bool:
+    parts = urlsplit(uri)
+    return parts.username is not None or parts.password is not None
+
+
 def train(
     exp: str,
     machine_type: str = "",
@@ -148,6 +154,10 @@ def train(
         "COMPETITION_NAME": os.environ["COMPETITION_NAME"],
     }
     if os.getenv("MLFLOW_TRACKING_URI"):
+        if _has_embedded_credentials(os.environ["MLFLOW_TRACKING_URI"]):
+            logger.warning(
+                "MLFLOW_TRACKING_URI contains embedded credentials; prefer a credential-free URI."
+            )
         env_vars["MLFLOW_TRACKING_URI"] = os.environ["MLFLOW_TRACKING_URI"]
     if os.getenv("WANDB_API_KEY"):
         env_vars["WANDB_API_KEY"] = os.environ["WANDB_API_KEY"]

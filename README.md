@@ -74,6 +74,9 @@ REGION=
 MLFLOW_TRACKING_URI=http://localhost:5000
 ```
 
+If you set `MLFLOW_TRACKING_URI`, make sure an MLflow tracking server is running at that address before executing training commands.
+Leave `MLFLOW_TRACKING_URI` empty to disable MLflow logging for local experimentation.
+
 ### 2. Install third-party Claude Code skills
 
 ```bash
